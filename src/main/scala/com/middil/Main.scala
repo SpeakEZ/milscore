@@ -1,23 +1,31 @@
 package com.middil
 
-import akka.actor.ActorSystem
+import akka.actor.{Actor, Props, ActorSystem}
 import akka.io.IO
 import spray.can.Http
-import spray.http.{HttpResponse, HttpRequest}
-import akka.pattern.ask
-import akka.util.Timeout
-import scala.concurrent.duration._
+import spray.http.{Uri, HttpMethods, HttpResponse, HttpRequest}
 
 object Main extends App {
-  implicit val timeout: Timeout = 2.seconds
   implicit val system = ActorSystem()
-  import system.dispatcher
 
-  val future = IO(Http) ? HttpRequest(uri = "http://spray.io")
+  val handler = system.actorOf(Props[DemoService], name = "handler")
+  IO(Http) ! Http.Bind(handler, "localhost", 8080)
 
-  future.mapTo[HttpResponse] onComplete {response =>
-    println(s"The response is $response")
-    system.shutdown()
+}
+
+
+class DemoService extends Actor {
+  def receive = {
+    case _: Http.Connected => sender ! Http.Register(self)
+
+    case HttpRequest(HttpMethods.GET, Uri.Path("/ping"), _, _, _) =>
+    sender ! HttpResponse(entity = "PONG!")
+
+    case HttpRequest(HttpMethods.GET, Uri.Path("/pong"), _, _, _) =>
+      sender ! HttpResponse(entity = "PING!")
+
+    case _: HttpRequest => sender ! HttpResponse(status = 404,
+      entity = "Unknown resource")
   }
 
 }
