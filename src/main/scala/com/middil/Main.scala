@@ -4,14 +4,14 @@ import akka.actor.{Actor, Props, ActorSystem, ActorLogging}
 import akka.io.IO
 import spray.can.Http
 import spray.http.{Uri, HttpMethods, HttpResponse, HttpRequest}
-import spray.routing.HttpServiceActor
+import spray.routing.HttpService
 import spray.httpx.encoding.Gzip
 
 
 object Main extends App {
   implicit val system = ActorSystem()
 
-  val handler = system.actorOf(Props[DemoService], name = "handler")
+  val handler = system.actorOf(Props[DemoServiceActor], name = "handler")
   IO(Http) ! Http.Bind(handler, "localhost", 8080)
 
 }
@@ -22,8 +22,13 @@ case class Color(red: Int, green: Int, blue: Int)  {
   require(blue < 256, "BLUE must be >= 0 and <= 256")
 }
 
-class DemoService extends HttpServiceActor {
-  def receive = runRoute {
+class DemoServiceActor extends Actor with DemoService {
+  def actorRefFactory = context
+  def receive = runRoute(route)
+}
+
+trait DemoService extends HttpService {
+  def route = {
     get {
       path("color") {
 	encodeResponse(Gzip) {
