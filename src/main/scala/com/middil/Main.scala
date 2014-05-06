@@ -15,14 +15,18 @@ object Main extends App {
 
 }
 
+case class Color(red: Int, green: Int, blue: Int)  {
+  require(red < 256, "RED must be >= 0 and <= 256")
+  require(green < 256, "GREEN must be >= 0 and <= 256")
+  require(blue < 256, "BLUE must be >= 0 and <= 256")
+}
 
 class DemoService extends HttpServiceActor {
   def receive = runRoute {
     get {
-      path("color" / IntNumber / IntNumber / IntNumber) { (red, green, blue) =>
-	validate(red < 256 && green < 256 && blue < 256,
-	  errorMsg = "At least one color value is out of range"){
-	  complete(page(red, green, blue))
+      path("color") {
+	parameters('red.as[Int], 'green.as[Int], 'blue.as[Int]).as(Color ) { color =>
+	  complete(page(color))
 	}
       } ~
       path("ping") {
@@ -34,7 +38,8 @@ class DemoService extends HttpServiceActor {
     }
   }
 
- def page(red: Int, green: Int, blue: Int) = {
+ def page(c: Color) = {
+   import c._
    def hex(i: Int) = "%02x" format i
    val color = '#' + hex(red) + hex(green) + hex(blue)
 
