@@ -1,9 +1,10 @@
 package com.middil
 
-import akka.actor.{Actor, Props, ActorSystem, ActorLogging }
+import akka.actor.{Actor, Props, ActorSystem, ActorLogging}
 import akka.io.IO
 import spray.can.Http
 import spray.http.{Uri, HttpMethods, HttpResponse, HttpRequest}
+import spray.routing.HttpServiceActor
 
 
 object Main extends App {
@@ -15,23 +16,15 @@ object Main extends App {
 }
 
 
-class DemoService extends Actor with ActorLogging {
-  def receive = {
-    case _: Http.Connected =>
-      log.info("Registering for new connection")
-      sender ! Http.Register(self)
-
-    case HttpRequest(HttpMethods.GET, Uri.Path("/ping"), _, _, _) =>
-    sender ! HttpResponse(entity = "PONG!")
-
-    case HttpRequest(HttpMethods.GET, Uri.Path("/pong"), _, _, _) =>
-      sender ! HttpResponse(entity = "PING!")
-
-    case _: HttpRequest => sender ! HttpResponse(status = 404,
-      entity = "Unknown resource")
-
-    case ev: Http.ConnectionClosed =>
-      log.info(s"Conneciton closed due to [$ev]")
+class DemoService extends HttpServiceActor {
+  def receive = runRoute {
+    get {
+      path("ping") {
+	complete("PONG!")
+      } ~
+      path("pong") {
+	complete("PING!")
+      }
+    }
   }
-
 }
