@@ -25,9 +25,14 @@ libraryDependencies ++= {
     "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
     "ch.qos.logback" % "logback-classic" % "1.0.12",
-    "org.scalatest" %% "scalatest" % "2.1.3" % "test"
+    "org.scalatest" %% "scalatest" % "2.1.3" % "test",
+    "com.typesafe.slick" %% "slick" % "2.0.1"
   )
 }
 
 
 seq(Revolver.settings: _*)
+
+
+scalariformSettings
+
