@@ -10,7 +10,7 @@ import spray.httpx.encoding.Gzip
 object Main extends App {
   implicit val system = ActorSystem()
 
-  val handler = system.actorOf(Props[DemoServiceActor], name = "handler")
+  val handler = system.actorOf(Props[SlickDemoServiceActor], name = "handler")
   IO(Http) ! Http.Bind(handler, "localhost", 8080)
 
 }

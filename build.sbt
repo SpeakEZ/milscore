@@ -26,7 +26,11 @@ libraryDependencies ++= {
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
     "ch.qos.logback" % "logback-classic" % "1.0.12",
     "org.scalatest" %% "scalatest" % "2.1.3" % "test",
-    "com.typesafe.slick" %% "slick" % "2.0.1"
+//    "mysql" % "mysql-connector-java" % "5.1.21",
+    "org.postgresql" % "postgresql" % "9.2-1004-jdbc4",
+    "com.typesafe.slick" %% "slick" % "2.0.1",
+    "org.slf4j" % "slf4j-nop" % "1.6.4", // Disable logging for Slick
+    "com.typesafe" % "config" % "1.2.1"
   )
 }
 
@@ -35,4 +39,3 @@ seq(Revolver.settings: _*)
 
 
 scalariformSettings
-
