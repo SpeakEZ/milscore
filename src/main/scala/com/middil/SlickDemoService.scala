@@ -10,10 +10,12 @@ class SlickDemoServiceActor extends Actor with SlickDemoService {
   def receive = runRoute(route)
 }
 
-class Activities(tag: Tag) extends Table[(Int, String)](tag, "activities") {
+case class Activity(id: Int, graded_by: String)
+
+class Activities(tag: Tag) extends Table[Activity](tag, "activities") {
   def id = column[Int]("id", O.PrimaryKey)
   def graded_by = column[String]("graded_by")
-  def * = (id, graded_by)
+  def * = (id, graded_by) <> (Activity.tupled, Activity.unapply)
 }
 
 trait SlickDemoService extends HttpService {
@@ -38,7 +40,7 @@ object Courses extends ConnectorService {
     implicit session =>
 
       val activity = activities.filter(_.id === id)
-      activity.first._2
+      activity.first.graded_by
   }
 
 }
